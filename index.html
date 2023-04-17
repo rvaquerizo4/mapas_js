@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>OpenLayers Example</title>
+  <link rel="stylesheet" href="https://openlayers.org/en/v4.6.5/css/ol.css" type="text/css">
+  <script src="https://openlayers.org/en/v4.6.5/build/ol.js"></script>
+  <style>
+    .map {
+      height: 400px;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+    <div id="map" style="width: 600px; height: 400px;">
+        <div id="popup" class="ol-popup">
+            <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+            <div id="popup-content"></div>
+        </div>
+</div>
+  <div>
+    <label>Nom:</label>
+    <input type="text" id="nom"><br>
+    <label>Latitud:</label>
+    <input type="text" id="lat"><br>
+    <label>Longitud:</label>
+    <input type="text" id="lng"><br>
+    <button id="add">Afegir marcador</button>
+  </div>
+  <script>
+    // Exercici 1
+    var map = new ol.Map({
+      target: 'map',
+      layers: [
+        new ol.layer.Tile({
+          source: new ol.source.OSM()
+        })
+      ],
+      view: new ol.View({
+        center: ol.proj.fromLonLat([2.17694, 41.3825]), // Barcelona
+        zoom: 13
+      })
+    });
+
+    // Exercici 2
+    var marker = new ol.Feature({
+    geometry: new ol.geom.Point(
+        ol.proj.fromLonLat([2.17694, 41.3825]) // Barcelona
+    )
+    });
+
+    var markerLayer = new ol.layer.Vector({
+    source: new ol.source.Vector({
+        features: [marker]
+    }),
+    style: new ol.style.Style({
+        image: new ol.style.Icon({
+        src: 'https://openlayers.org/en/v4.6.5/examples/data/icon.png',
+        anchor: [0.5, 1]
+        })
+    })
+    });
+
+    map.addLayer(markerLayer);
+
+    // Exercici 3
+    var container = document.getElementById('popup');
+    var content = document.getElementById('popup-content');
+    var closer = document.getElementById('popup-closer');
+
+    var overlay = new ol.Overlay({
+        element: container,
+        autoPan: true,
+        autoPanAnimation: {
+            duration: 250
+        }
+    });
+    map.addOverlay(overlay);
+
+    closer.onclick = function() {
+        overlay.setPosition(undefined);
+        closer.blur();
+        return false;
+    };
+    map.on('singleclick', function (event) {
+        if (map.hasFeatureAtPixel(event.pixel) === true) {
+            var coordinate = event.coordinate;
+
+            content.innerHTML = '<b>Barcelona</b>';
+            overlay.setPosition(coordinate);
+        } else {
+            overlay.setPosition(undefined);
+            closer.blur();
+        }
+    });
+
+    // Exercici 4
+    var addMarkerBtn = document.getElementById('add');
+    addMarkerBtn.addEventListener('click', function (evt) {
+    var name = document.getElementById('nom').value;
+    var lat = parseFloat(document.getElementById('lat').value);
+    var lng = parseFloat(document.getElementById('lng').value);
+    if (isNaN(lat) || isNaN(lng)) {
+    alert('Latitud i longitud han de ser números.');
+    } else {
+    var newMarker = new ol.Feature({
+    geometry: new ol.geom.Point(ol.proj.fromLonLat([lng, lat])),
+    name: name
+    });
+    markerLayer.getSource().addFeature(newMarker);
+    }
+    });
+   
+   
+  </script>
+</body>
+</html>
